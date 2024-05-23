@@ -1,0 +1,44 @@
+body {
+  margin: 0;
+}
+
+button {
+  border: none;
+  outline: none;
+}
+
+.board {
+  margin-bottom: 10px;
+}
+
+.board-row {
+  display: flex;
+}
+
+.hoverable {
+  cursor: pointer;
+}
+
+.board-cell {
+  width: 34px;
+  height: 34px;
+  border: 1px solid black;
+  margin-right: -1px;
+  margin-bottom: -1px;
+}
+
+.hit-no-attempt {
+  background-color: white;
+}
+
+.hit-miss {
+  background-color: wheat;
+}
+
+.hit-hit {
+  background-color: red;
+}
+
+.player-ship {
+  background-color: blue;
+}

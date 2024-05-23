@@ -1,4 +1,13 @@
 // assume integer coords
+
+const AttackKind = {
+  NoAttempt: 0,
+  Miss: 1,
+  AlreadyMiss: 2,
+  Hit: 3,
+  AlreadyHit: 4
+};
+
 function Vec2(x, y) {
   return {
     get x() {
@@ -7,6 +16,14 @@ function Vec2(x, y) {
 
     get y() {
       return y
+    },
+
+    set x(value) {
+      x = value;
+    },
+
+    set y(value) {
+      y = value;
     },
 
     isEqual(anotherVec) {
@@ -24,4 +41,4 @@ function Vec2(x, y) {
   };
 }
 
-export { Vec2 };
+export { Vec2, AttackKind };
