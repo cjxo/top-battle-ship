@@ -13,7 +13,7 @@ function Gameboard() {
   shipArray[2] = Ship(Vec2(4, 4), 3, true);
   shipArray[3] = Ship(Vec2(9, 0), 5, false);
   shipArray[4] = Ship(Vec2(7, 6), 2, false);
-
+  
   shipArray.forEach(ship => {
     let baseindex = ship.startP.y * 10 + ship.startP.x;
     if (ship.hori) {
@@ -29,7 +29,10 @@ function Gameboard() {
     }
   });
 
-  // TODO: we probably do not need any AttackKind Returns here.
+  function randomizeShips() {    
+    // TODO TOMR
+  }
+
   function receiveAttack(coord) {
     if (!(((coord.x < 10) && (coord.x >= 0)) || ((coord.y < 10) && (coord.y >= 0)))) {
       return AttackKind.Miss;
@@ -86,7 +89,8 @@ function Gameboard() {
     },
     queryCell,
     receiveAttack,
-    allShipsSunk
+    allShipsSunk,
+    randomizeShips
   };
 }
 

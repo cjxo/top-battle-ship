@@ -1,91 +1,169 @@
-import { Player } from "./player.js";
+import { Player, CPUPlayer } from "./player.js";
 import { Vec2, AttackKind } from "./utils.js";
 import "./styles.css";
 
-const divPlayerBoard = document.createElement("div");
-divPlayerBoard.setAttribute("class", "board");
+function DomBattleship() {
+  const player = Player();
+  const enemy = CPUPlayer();
 
-const divEnemyBoard = document.createElement("div");
-divEnemyBoard.setAttribute("class", "board");
+  const divPlayerBoard = createBoard("You");
+  const divEnemyBoard = createBoard("CPU");
 
-document.body.append(divPlayerBoard, divEnemyBoard);
-
-// TODO: AI THAT DOES THIS
-let enemyNextMove = Vec2(0, 0);
-
-function domBuildBoardCells(player, enemy) {
-  while (divPlayerBoard.firstChild) {
-    divPlayerBoard.firstChild.remove();
+  function resetGame() {
+    player.reset();
+    player.gameboard.randomizeShips();
+    enemy.reset();
+    resetBoard();
   }
-
-  while (divEnemyBoard.firstChild) {
-    divEnemyBoard.firstChild.remove();
-  }
-
-  for (let rowIndex = 0; rowIndex < 10; ++rowIndex) {
-    const divRow = document.createElement("div");
-    divRow.setAttribute("class", "board-row");
-    for (let cellIndex = 0; cellIndex < 10; ++cellIndex) {
-      const btnCell = document.createElement("button");
-      btnCell.setAttribute("class", "board-cell");
-      divRow.appendChild(btnCell);
-
-      const cellState = player.gameboard.queryCell(Vec2(cellIndex, rowIndex));
-      if (cellState === AttackKind.NoAttempt) {
-        btnCell.classList.add("hit-no-attempt");
-      } else if (cellState === "ship") {
-        btnCell.classList.add("player-ship");
-      } else if (cellState === AttackKind.Hit) {
-        btnCell.classList.add("hit-hit");
-      } else if (cellState === AttackKind.Miss) {
-        btnCell.classList.add("hit-miss");
-      }
+  
+  function gameOverDialog(playerWon) {
+    const dlg = document.createElement("dialog");
+    const btnNextGame = document.createElement("button");
+    btnNextGame.textContent = "Next Game";
+    btnNextGame.addEventListener("click", () => {
+      dlg.remove();
+      resetGame();
+    });
+  
+    const divGameOver = document.createElement("div");
+    divGameOver.textContent = "Game Over!";
+  
+    const divWon = document.createElement("div");
+    divWon.setAttribute("class", "who-won");
+    if (playerWon) {
+      divWon.textContent = "You Won!";
+    } else {
+      divWon.textContent = "CPU Won!";
     }
-
-    divPlayerBoard.appendChild(divRow);
+  
+    dlg.append(divGameOver, divWon, btnNextGame);
+  
+    document.body.append(dlg);
+    
+    dlg.showModal();
   }
 
-  for (let rowIndex = 0; rowIndex < 10; ++rowIndex) {
-    const divRow = document.createElement("div");
-    divRow.setAttribute("class", "board-row");
-    for (let cellIndex = 0; cellIndex < 10; ++cellIndex) {
-      const btnCell = document.createElement("button");
-      btnCell.setAttribute("class", "board-cell hoverable");
-      divRow.appendChild(btnCell);
+  function createBoard(playerName) {
+    const divBoard = document.createElement("div");
+    divBoard.setAttribute("class", "board");
+  
+    const divName = document.createElement("div");
+    divName.setAttribute("class", "player-name");
+    divName.textContent = playerName;
+  
+    const divCellGroup = document.createElement("div");
+    divCellGroup.setAttribute("class", "cell-group");
+  
+    divBoard.append(divName, divCellGroup);
+  
+    document.querySelector(".game").append(divBoard);
+  
+    return divBoard;
+  }
 
-      const cellState = enemy.gameboard.queryCell(Vec2(cellIndex, rowIndex));
-      if ((cellState === AttackKind.NoAttempt) || 
-          (cellState === "ship")) {
-        btnCell.classList.add("hit-no-attempt");
-      } else if (cellState === AttackKind.Miss) {
-        btnCell.classList.add("hit-miss");
-      } else if (cellState === AttackKind.Hit) {
-        btnCell.classList.add("hit-hit");
-      }
+  function clearBoard(board) {
+    const cellGroup = board.querySelector(".cell-group");
+    while (cellGroup.firstChild) {
+      cellGroup.firstChild.remove();
+    }
+  }
 
-      btnCell.addEventListener("click", () => {
-        if ((cellState === AttackKind.NoAttempt) || 
-          (cellState === "ship")) {
-          enemy.gameboard.receiveAttack(Vec2(cellIndex, rowIndex));
+  function someoneHasWon() {
+    return player.gameboard.allShipsSunk() || enemy.gameboard.allShipsSunk();
+  }
 
-          // TODO: implement AI here
-          player.gameboard.receiveAttack(Vec2(enemyNextMove.x, enemyNextMove.y));
-          enemyNextMove.add(Vec2(1, 0));
-          if (enemyNextMove.x > 9) {
-            enemyNextMove.x = 0;
-            enemyNextMove.y = enemyNextMove.y + 1;
-          }
+  function determineWinner() {
+    if (player.gameboard.allShipsSunk()) {
+      // enemy won
+      gameOverDialog(false);
+    } else if (enemy.gameboard.allShipsSunk()) {
+      // player won
+      gameOverDialog(true);
+    }
+  }
 
-          domBuildBoardCells(player, enemy);
+  function resetBoard() {
+    clearBoard(divPlayerBoard);
+    clearBoard(divEnemyBoard);
+  
+    const playerCellGroup = divPlayerBoard.querySelector(".cell-group");
+    const enemyCellGroup = divEnemyBoard.querySelector(".cell-group");
+    for (let rowIndex = 0; rowIndex < 10; ++rowIndex) {
+      const divRow = document.createElement("div");
+      divRow.setAttribute("class", "board-row");
+      for (let cellIndex = 0; cellIndex < 10; ++cellIndex) {
+        const btnCell = document.createElement("button");
+        btnCell.setAttribute("class", "board-cell");
+        divRow.appendChild(btnCell);
+  
+        const cellState = player.gameboard.queryCell(Vec2(cellIndex, rowIndex));
+        if (cellState === AttackKind.NoAttempt) {
+          btnCell.classList.add("hit-no-attempt");
+        } else if (cellState === "ship") {
+          btnCell.classList.add("player-ship");
         }
-      });
+      }
+  
+      playerCellGroup.appendChild(divRow);
     }
+  
+    for (let rowIndex = 0; rowIndex < 10; ++rowIndex) {
+      const divRow = document.createElement("div");
+      divRow.setAttribute("class", "board-row");
+      for (let cellIndex = 0; cellIndex < 10; ++cellIndex) {
+        const btnCell = document.createElement("button");
+        btnCell.setAttribute("class", "board-cell");
+        divRow.appendChild(btnCell);
+  
+        btnCell.classList.add("hit-no-attempt", "hoverable");
+        
+        btnCell.addEventListener("click", () => {
+          const newCellState = enemy.gameboard.queryCell(Vec2(cellIndex, rowIndex))
+          if (((newCellState === AttackKind.NoAttempt) || 
+              (newCellState === "ship")) &&
+              !someoneHasWon(player, enemy)) {
+            console.log(enemy.gameboard.queryCell(Vec2(cellIndex, rowIndex)));
+            btnCell.classList.remove("hoverable");
+  
+            switch (enemy.receiveAttack(Vec2(cellIndex, rowIndex))) {
+              case AttackKind.Hit: {
+                btnCell.classList.add("hit-hit");
+              } break;
+  
+              case AttackKind.Miss: {
+                btnCell.classList.add("hit-miss");
+              } break;
+            };
+            
+            const enemyMove = enemy.getRandomMove();
+            const playerBtn = playerCellGroup.children[enemyMove.y].children[enemyMove.x];
+            switch (player.receiveAttack(enemyMove)) {
+              case AttackKind.Hit: {
+                console.log("Hi");
+                playerBtn.classList.remove("player-ship");
+                playerBtn.classList.add("hit-hit");
+              } break;
+  
+              case AttackKind.Miss: {
+                playerBtn.classList.add("hit-miss");
+              } break;
+            }
+            
+            determineWinner(player, enemy);
+          }
+        });
+      }
+  
+      enemyCellGroup.appendChild(divRow);
+    }
+  }
 
-    divEnemyBoard.appendChild(divRow);
+  return { 
+    run() {
+      resetGame();
+    }
   }
 }
 
-const player = Player();
-const enemy = Player();
-
-domBuildBoardCells(player, enemy);
+const battleship = DomBattleship();
+battleship.run();

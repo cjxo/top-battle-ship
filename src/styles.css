@@ -1,14 +1,31 @@
+@font-face {
+  font-family: press-start;
+  src: url("./res/prstart.ttf");
+}
+
 body {
   margin: 0;
+  font-family: press-start;
+
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100vh;
+  padding: 24px;
+  border: 1px solid red;
 }
 
 button {
   border: none;
   outline: none;
+  font-family: press-start;
 }
 
-.board {
-  margin-bottom: 10px;
+.player-name {
+  text-align: center;
+  font-size: 24px;
+  margin-bottom: 12px;
 }
 
 .board-row {
@@ -19,26 +36,71 @@ button {
   cursor: pointer;
 }
 
+.game-title {
+  font-size: 36px;
+}
+
+.game {
+  padding-top: 64px;
+  display: flex;
+  justify-content: space-around;
+  max-width: 1000px;
+  gap: 128px;
+}
+
 .board-cell {
   width: 34px;
   height: 34px;
   border: 1px solid black;
-  margin-right: -1px;
-  margin-bottom: -1px;
+  border-radius: 4px;
 }
 
-.hit-no-attempt {
+.board-cell.hoverable:hover {
   background-color: white;
 }
 
+.hit-no-attempt {
+  background-color: rgb(51, 51, 255);
+}
+
 .hit-miss {
-  background-color: wheat;
+  background-color: hsl(232, 62%, 65%);
 }
 
 .hit-hit {
-  background-color: red;
+  background-color: hsl(0, 90%, 60%);
 }
 
 .player-ship {
-  background-color: blue;
+  background-color: hsl(180, 100%, 70%);
+}
+
+dialog {
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+  gap: 16px;
+  align-items: center;
+  
+  border-radius: 8px;
+}
+
+dialog button {
+  width: fit-content;
+  border: 3px solid black;
+  padding: 8px 16px;
+}
+
+dialog button:hover {
+  cursor: pointer;
+  background-color: rgb(193, 193, 193);
+}
+
+dialog button:active {
+  cursor: pointer;
+  background-color: rgb(142, 142, 142);
+}
+
+.who-won {
+  color: blue;
 }
