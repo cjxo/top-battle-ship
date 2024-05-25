@@ -8,8 +8,13 @@ function Player() {
     return gameboard.receiveAttack(coord);
   }
 
-  function reset() {
+  function reset(randomizeShips) {
     gameboard = Gameboard();
+    if (randomizeShips) {
+      gameboard.randomizeShips();
+    } else{
+      gameboard.loadDefaultShipArrangement();
+    }
   }
   
   return {

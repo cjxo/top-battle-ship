@@ -85,22 +85,26 @@ dialog {
   border-radius: 8px;
 }
 
-dialog button {
+body > button, dialog button {
   width: fit-content;
   border: 3px solid black;
   padding: 8px 16px;
 }
 
-dialog button:hover {
+body > button:hover, dialog button:hover {
   cursor: pointer;
   background-color: rgb(193, 193, 193);
 }
 
-dialog button:active {
+body > button:active, dialog button:active {
   cursor: pointer;
   background-color: rgb(142, 142, 142);
 }
 
 .who-won {
   color: blue;
+}
+
+body > button {
+  margin-top: 8px;
 }

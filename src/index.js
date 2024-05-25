@@ -8,11 +8,15 @@ function DomBattleship() {
 
   const divPlayerBoard = createBoard("You");
   const divEnemyBoard = createBoard("CPU");
+  const randomizeBtn = document.querySelector("body > button");
+  randomizeBtn.addEventListener("click", () => {
+    player.gameboard.randomizeShips();
+    resetBoard();
+  });
 
   function resetGame() {
-    player.reset();
-    player.gameboard.randomizeShips();
-    enemy.reset();
+    player.reset(true);
+    enemy.reset(true);
     resetBoard();
   }
   
@@ -165,5 +169,6 @@ function DomBattleship() {
   }
 }
 
+// what we need todo tomr: Finish up ship randomizer. Thats it.
 const battleship = DomBattleship();
 battleship.run();

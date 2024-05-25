@@ -4,33 +4,138 @@ import { Ship } from "./ship.js";
 function Gameboard() {
   // five ships per board???? Is this good?
   const shipArray = new Array(5);
-
   const attackMatrix = new Array(100).fill(AttackKind.NoAttempt);
-
-  // NOTE: for now, hardcode ships 
-  shipArray[0] = Ship(Vec2(0, 0), 4, true);
-  shipArray[1] = Ship(Vec2(0, 4), 2, false);
-  shipArray[2] = Ship(Vec2(4, 4), 3, true);
-  shipArray[3] = Ship(Vec2(9, 0), 5, false);
-  shipArray[4] = Ship(Vec2(7, 6), 2, false);
   
-  shipArray.forEach(ship => {
-    let baseindex = ship.startP.y * 10 + ship.startP.x;
-    if (ship.hori) {
-      for (let i = 0; i < ship.length; ++i) {
-        attackMatrix[baseindex] = ship;
-        baseindex += 1;
+  function markAttackMatrix() {
+    attackMatrix.fill(AttackKind.NoAttempt);
+    
+    shipArray.forEach(ship => {
+      let baseindex = ship.startP.y * 10 + ship.startP.x;
+      if (ship.hori) {
+        for (let i = 0; i < ship.length; ++i) {
+          attackMatrix[baseindex] = ship;
+          baseindex += 1;
+        }
+      } else {
+        for (let i = 0; i < ship.length; ++i) {
+          attackMatrix[baseindex] = ship;
+          baseindex += 10;
+        }
       }
-    } else {
-      for (let i = 0; i < ship.length; ++i) {
-        attackMatrix[baseindex] = ship;
-        baseindex += 10;
-      }
-    }
-  });
+    });
+  }
 
   function randomizeShips() {    
-    // TODO TOMR
+    const possibleCells = new Array(100);
+    const possibleLengths = [5, 4, 3, 2, 2];
+    for (let i = 0; i < 100; ++i) {
+      possibleCells[i] = i;
+    }
+
+    function testCells(cell, shipLength, iMultiplier) {
+      let isGood = true;
+      for (let i = 1; i < shipLength; ++i) {
+        if (possibleCells[cell + i * iMultiplier] === -1) {
+          isGood = false;
+          break;
+        }
+      }
+
+      return isGood;
+    }
+
+    for (let shipIndex = 0; shipIndex < shipArray.length; ++shipIndex) {
+      const randomLengthIndex = Math.floor(Math.random() * possibleLengths.length);
+      const length = possibleLengths[randomLengthIndex];
+      const isHori = Math.random() > 0.5;
+      let P = null;
+      possibleLengths.splice(randomLengthIndex, 1);
+
+      let accept = false;
+      while (!accept) {
+        const randomCellIndex = Math.floor(Math.random() * possibleCells.length);
+        const originalCell = possibleCells[randomCellIndex];
+        if (originalCell !== -1) {
+          if (isHori) {
+            if (((originalCell % 10) + length) < 10) {
+              accept = testCells(originalCell, length, 1);
+            }
+          } else {
+            if ((Math.floor(originalCell / 10) + length) < 10) {
+              accept = testCells(originalCell, length, 10);
+            }
+          }
+          
+          if (accept) {
+            P = Vec2(originalCell % 10, Math.floor(originalCell / 10));
+            if (isHori) {
+              if ((randomCellIndex % 10) > 0) {
+                possibleCells[randomCellIndex - 1] = -1;
+              }
+  
+              if (((randomCellIndex % 10) + length + 1) < 10) {
+                possibleCells[randomCellIndex + length + 1] = -1;
+              }
+
+              if ((randomCellIndex - 10) >= 0) {
+                for (let i = 0; i < length; ++i) {
+                  possibleCells[randomCellIndex - 10 + i] = -1;
+                }
+              }
+
+              if ((randomCellIndex + 10) < 100) {
+                for (let i = 0; i < length; ++i) {
+                  possibleCells[randomCellIndex + 10 + i] = -1;
+                }
+              }
+
+              for (let i = 0; i < length; ++i) {
+                possibleCells[randomCellIndex + i] = -1;
+              }
+            } else {
+              if ((randomCellIndex - 10) > 0) {
+                possibleCells[randomCellIndex - 10] = -1;
+              }
+
+              if (Math.floor((randomCellIndex + length * 10) / 10) < 10) {
+                possibleCells[randomCellIndex + length * 10] = -1;
+              }
+
+              if ((randomCellIndex % 10) > 0) {
+                for (let i = 0; i < length; ++i) {
+                  possibleCells[(randomCellIndex - 1) + i * 10] = -1;
+                }
+              }
+
+              if (((randomCellIndex % 10) + 1) < 10) {
+                for (let i = 0; i < length; ++i) {
+                  possibleCells[(randomCellIndex + 1) + i * 10] = -1;
+                }
+              }              
+
+              for (let i = 0; i < length; ++i) {
+                possibleCells[randomCellIndex + i * 10] = -1;
+              }
+            }
+          }
+        }
+      }
+
+      shipArray[shipIndex] = Ship(P, length, isHori);
+    }
+
+    markAttackMatrix();
+  }
+
+  function loadDefaultShipArrangement() {
+    // NOTE: for now, hardcode ships 
+    shipArray[0] = Ship(Vec2(0, 0), 4, true);
+    shipArray[1] = Ship(Vec2(0, 4), 2, false);
+    shipArray[2] = Ship(Vec2(4, 4), 3, true);
+    shipArray[3] = Ship(Vec2(9, 0), 5, false);
+    shipArray[4] = Ship(Vec2(7, 6), 2, false);
+
+    markAttackMatrix();
   }
 
   function receiveAttack(coord) {
@@ -90,7 +195,8 @@ function Gameboard() {
     queryCell,
     receiveAttack,
     allShipsSunk,
-    randomizeShips
+    randomizeShips,
+    loadDefaultShipArrangement
   };
 }
 
