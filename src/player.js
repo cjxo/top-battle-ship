@@ -44,6 +44,12 @@ function CPUPlayer() {
     }
   }
 
+  function reset(randomizeShips) {
+    playerPart.reset(randomizeShips);
+    for (let i = 0; i < 100; ++i) {
+      validMoves[i] = i;
+    }
+  }
 
   // why this no work?????
   //return Object.assign({}, playerPart, { getRandomMove });
@@ -52,7 +58,7 @@ function CPUPlayer() {
       return playerPart.gameboard
     },
     receiveAttack: playerPart.receiveAttack,
-    reset: playerPart.reset,
+    reset,
     getRandomMove
   }
 }
