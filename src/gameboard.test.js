@@ -3,9 +3,10 @@ import { Vec2, AttackKind } from "./utils.js";
 
 test("Gameboard recieve attack from hardcode ship", () => {
   const myGameboard = Gameboard();
+  myGameboard.loadDefaultShipArrangement();
+
   expect(myGameboard.allShipsSunk()).toBeFalsy();
 
-  // soon this test is invalid because I hardcoded ship Positions.
   expect(myGameboard.receiveAttack(Vec2(0, 0))).toBe(AttackKind.Hit);
   expect(myGameboard.receiveAttack(Vec2(0, 0))).toBe(AttackKind.AlreadyHit);
   expect(myGameboard.receiveAttack(Vec2(1, 0))).toBe(AttackKind.Hit);
